@@ -1,5 +1,7 @@
 package com.techmonad.ignite
 
+import java.util
+
 import org.apache.ignite.cache.query.SqlFieldsQuery
 
 import scala.collection.JavaConversions._
@@ -12,9 +14,12 @@ object IgniteQueryApp extends App {
 
   while (true) {
     try {
-      Thread.sleep(100)
+      Thread.sleep(10)
       val cache = ignite.cache[Any, Any](IgniteUtils.CACHE_NAME)
       //Reading saved data from Ignite.
+
+      val total: util.List[util.List[_]] = cache.query(new SqlFieldsQuery(s"SELECT COUNT(*) FROM sensor")).getAll
+      total.foreach { row ⇒ println(" total count = " + row.mkString(",")) }
       val oneSecondWindow = System.currentTimeMillis() - 1000L
       println("query time =  " + oneSecondWindow)
       val data = cache.query(new SqlFieldsQuery(s"SELECT id, temperature FROM sensor where time  > $oneSecondWindow")).getAll
